@@ -8,14 +8,17 @@ export interface User extends Document {
   userName: string;
   email: string;
   password: string;
-  verifyCode: number;
-  verifyCodeExpiry: Date;
+  googleId?: string;
+  authProvider: string;
+  verifyCode: string | null;
+  verifyCodeExpiry: Date | null;
   isVerified: boolean;
   roles: Roles;
   isPremium: boolean;
   canVote: boolean;
   createdElection: string[];
   votedElection: string[];
+  profilePic: string;
 }
 
 const userSchema = new Schema<User>({
@@ -33,15 +36,24 @@ const userSchema = new Schema<User>({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+  },
+  googleId: {
+    type: String,
+  },
+  authProvider: {
+    type: String,
+    required: true,
+  },
+  profilePic: {
+    type: String,
   },
   verifyCode: {
-    type: Number,
-    required: [true, "verifyCode is required"],
+    type: String,
+    required: false,
   },
   verifyCodeExpiry: {
     type: Date,
-    required: [true, "verifyCode expiry is required"],
+    required: false,
   },
   isVerified: {
     type: Boolean,

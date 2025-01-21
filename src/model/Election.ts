@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 interface Candidate {
   Candidate_Name: string;
   party_img: string;
+  votes:number;
 }
 
 export interface Election extends Document {
@@ -36,6 +37,11 @@ const electionSchema = new Schema<Election>({
         type: String,
         required: false,
       },
+      votes:{
+        type:Number,
+        default:0,
+        required:true
+      }
     },
   ],
   Duration: {
