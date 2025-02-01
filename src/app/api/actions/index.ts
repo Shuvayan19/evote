@@ -4,14 +4,14 @@ import { signIn, signOut } from "@/auth";
 
 import { redirect } from "next/navigation";
 
-// export async function doSociallogin(provider: string) {
-//   //login function
-
-//   console.log(provider);
-//   return signIn(provider, {
-//     callbackUrl: "/dashboard",
-//     redirect: false,
-//   });
+// export async function doSocialLogin(formData:FormData) {
+  
+//   try {
+//     await signIn("google");
+//   } catch (error) {
+//     console.error("Error during social login:", error);
+//     throw error; // Re-throw the error to handle it in the client component
+//   }
 // }
 // export async function doCredentiallogin(formData: FormData) {
 //   try {

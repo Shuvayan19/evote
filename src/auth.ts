@@ -52,17 +52,19 @@ export const {
         if (!isMatched) {
           throw new LoginError("password is wrong")
         }
-        const userData = {
+        return {
           email: user.email,
           id: user._id,
-        };
-        return userData;
-      },
+          name:user.userName,
+        }
+       
+      }
     }),
 
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+     
     }),
   ],
   pages: {
@@ -70,30 +72,87 @@ export const {
     signOut:"/auth/signin"
   },
   
-  // callbacks: {
-  //   async session({session}){
-  //     return session;
-  //   },
+  callbacks: {
+
+    async jwt({token,user}){
+      if(user){
+        token.id=user.id;
+        token.email=user.email;
+        token.name=user.name||"USER";
+        token.picture=user.image||"";
+
+      }
+      return token
+    },
+    async session({session,token}){
+      if(session){
+        session.user.id=token.id as string;
+        session.user.email=token.email as string;
+        session.user.name=token.name as string;
+      }
+      return session;
+    },
+    async signIn(params) {
+      
+       if(!params.user.email){
+        return false;
+       }
+        try {
+          await dbConnect();
+          const user=await UserModel.findOne({email:params.user.email})
+          if (!user) {
+            // Create a new user if they don't exist
+            await UserModel.create({
+              userName: params.user.name,
+              email: params.user.email,
+              googleId: params.profile?.sub,
+              authProvider: 'google',
+              isVerified: true, // Google accounts are pre-verified
+              profilePic: params.user.image,
+              roles: {
+                admin: false,
+                voter: true,
+              },
+              isPremium: false,
+              canVote: true,
+              createdElection: [],
+              votedElection: [],
+            });
+            console.log("user created succesfully");
+          }
+  
+        } catch (error) {
+          console.log("error while signing in")
+        }
+        return true;
+    },
+
+
   //   async signIn({ profile }) {
   //     try {
-  //       console.log()
+  //       console.log('Profile:', profile);
   //       await dbConnect();
-  //       const existingUser=UserModel.findOne({email:profile?.email})
+  //       console.log('UserModel:', UserModel);
+  //       const existingUser=await UserModel.findOne({email:profile?.email})
   //       if(!existingUser){
   //         const newUser = new UserModel({
-  //           userName:profile?.family_name,
+  //           userName:profile?.given_name,
   //           email:profile?.email,
   //           googleId:profile?.id,
   //           authProvider: 'google',
   //           isVerified: true, // Google accounts are pre-verified
-  //           profilePicture:profile?.picture,
-  //           roles: [false, true],
+  //           profilePic: profile?.picture,
+  //           roles: {
+  //             admin: false,
+  //             voter: true
+  //           },
   //           isPremium: false,
   //           canVote: true,
   //           createdElection: [],
   //           votedElection: [],
   //         });
   //         await newUser.save();
+          
   //       }
   //       return true;
   //     } catch (error) {
@@ -101,6 +160,6 @@ export const {
   //       return false;
   //     }
   //   }
-  // }
+  }
 
   });

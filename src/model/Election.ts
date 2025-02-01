@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-interface Candidate {
+export interface Candidate {
   Candidate_Name: string;
   party_img: string;
   votes:number;
@@ -66,16 +66,18 @@ const electionSchema = new Schema<Election>({
 });
 
 //server side hook to generate roomkey
-electionSchema.pre("save", async function (next) {
-  if (!this.roomkey) {
-    let roomkey;
-    do {
-      roomkey = Math.floor(100000 + Math.random() * 900000);
-    } while (mongoose.models.Election.exists({ roomkey }));
-    this.roomkey = roomkey;
-  }
-  next();
-});
+// electionSchema.pre("save", async function (next) {
+//   if (!this.roomkey) {
+//     let roomkey;
+//     do {
+//       roomkey = Math.floor(100000 + Math.random() * 900000);
+//     } while (await mongoose.models.Election.exists({ roomkey }));
+//     this.roomkey = roomkey;
+//     console.log("roomkey is : ",this.roomkey)
+//   }
+  
+//   next();
+// });
 
 const ElectionModel =
   (mongoose.models.Election as mongoose.Model<Election>) ||

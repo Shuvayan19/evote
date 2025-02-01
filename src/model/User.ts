@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document,models } from "mongoose";
 
 interface Roles {
   admin: boolean;
@@ -87,7 +87,7 @@ const userSchema = new Schema<User>({
 });
 
 const UserModel =
-  (mongoose.models.User as mongoose.Model<User>) ||
+  (mongoose.models.User ) ||
   mongoose.model<User>("User", userSchema);
 
 export default UserModel;

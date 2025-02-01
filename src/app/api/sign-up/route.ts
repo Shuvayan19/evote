@@ -12,9 +12,6 @@ export async function POST(request: Request) {
       userName,
       email,
       password,
-      authProvider,
-      googleId,
-      profilePicture,
     } = await request.json();
     //Checking existing username and verification
     const existingVerifiedUser = await UserModel.findOne({
