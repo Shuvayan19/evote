@@ -3,13 +3,16 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface Candidate {
   Candidate_Name: string;
   party_img: string;
-  votes:number;
+  votes: number;
 }
-
+interface Voters {
+  userId: string;
+}
 export interface Election extends Document {
   ElectionName: string;
   NoC: number;
   Candidates: Candidate[];
+  VoterList: Voters[];
   Duration: number;
   parentId: string;
   isStrict: boolean;
@@ -27,6 +30,13 @@ const electionSchema = new Schema<Election>({
     min: [2, "atleast 2 candidates are needed to create election"],
     max: [8, "atmax 8 candidates are allowed to contest the election"],
   },
+  VoterList: [
+    {
+      userId: {
+        type: String,
+      },
+    },
+  ],
   Candidates: [
     {
       Candidate_Name: {
@@ -37,11 +47,11 @@ const electionSchema = new Schema<Election>({
         type: String,
         required: false,
       },
-      votes:{
-        type:Number,
-        default:0,
-        required:true
-      }
+      votes: {
+        type: Number,
+        default: 0,
+        required: true,
+      },
     },
   ],
   Duration: {
@@ -75,7 +85,7 @@ const electionSchema = new Schema<Election>({
 //     this.roomkey = roomkey;
 //     console.log("roomkey is : ",this.roomkey)
 //   }
-  
+
 //   next();
 // });
 

@@ -1,11 +1,40 @@
 import { NextRequest } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import ElectionModel from "@/model/Election";
+import { auth } from "@/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
+    //check if there is user in the session
+    const session = await auth();
+    if (!session?.user) {
+      return Response.json({success:false,message:"unauthorized"},{ status: 401 });
+    }
+    const userid = session.user.id;
+
     const { roomkey, Candidate_Name } = await req.json();
+    if(!roomkey||!Candidate_Name){
+      return Response.json({success:false,message:"incomplete inputs"},{status:400})
+    }
+    //connect Db
+    await dbConnect();
+    //now check whether the user has already voted in this election or not by checking
+    //user id and the election voter list
+    const isOldVoter = await ElectionModel.findOne({
+      roomkey,
+      "VoterList.userId": userid,
+    });
+    if (isOldVoter) {
+      return Response.json(
+        {
+          success: false,
+          message: "You have already casted your vote in this election",
+        },
+        { status: 401 }
+      );
+    }
+   
+
     const election = await ElectionModel.findOne({ roomkey });
     if (!election) {
       console.log("no such election is found");
@@ -19,7 +48,7 @@ export async function POST(req: NextRequest) {
         roomkey,
         "Candidates.Candidate_Name": Candidate_Name,
       },
-      { $inc: { "Candidates.$.votes": 1 } },
+      { $inc: { "Candidates.$.votes": 1 }, $push: { VoterList: { userid } } },
       { new: true }
     );
     if (!updatedElection) {
