@@ -1,8 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Candidate {
+  _id: any;
   Candidate_Name: string;
   party_img: string;
+  color?:string;
   votes: number;
 }
 interface Voters {
@@ -47,6 +49,7 @@ const electionSchema = new Schema<Election>({
         type: String,
         required: false,
       },
+      color:{type:String,required:false},
       votes: {
         type: Number,
         default: 0,

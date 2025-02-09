@@ -11,7 +11,7 @@ const page = async () => {
   if (!session?.user) {
     redirect("/auth/signin");
   }
-  const userId = session.user.id;
+  
   
   return (
     <div className="flex flex-col ">

@@ -53,7 +53,7 @@ const VerifyOtpPage = () => {
       setEmail(emailFromQuery);
     } else {
       console.error("No email provided");
-      router.push("/sign-up"); // Redirect back if no email
+      router.push("/auth/signup"); // Redirect back if no email
     }
   }, [searchParams, router]);
 

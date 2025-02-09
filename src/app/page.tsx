@@ -27,7 +27,7 @@ const Homepage = () => {
               <Link href="/dashboard" className="text-gray-700 dark:text-gray-200 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">
                 Dashboard
               </Link>
-              <Link href="/create" className="text-gray-700 dark:text-gray-200 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">
+              <Link href="/dashboard/createElection" className="text-gray-700 dark:text-gray-200 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">
                 Create
               </Link>
               <Link href="/vote" className="text-gray-700 dark:text-gray-200 hover:text-emerald-500 dark:hover:text-emerald-500 transition-colors">

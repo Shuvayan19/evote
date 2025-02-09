@@ -13,12 +13,12 @@ import {
   Shield,
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Candidate } from "@/model/Election";
 
 // Main component for creating elections with multi-step form interface
 const CreateElectionInterface = () => {
-  
+  const router = useRouter();
   // Auth session management with redirect if not authenticated
   const { data: session } = useSession();
   if (!session?.user) {
@@ -30,8 +30,8 @@ const CreateElectionInterface = () => {
     ElectionName: "",
     NoC: 2, // Number of candidates
     Candidates: [
-      { Candidate_Name: "", party_img: "" },
-      { Candidate_Name: "", party_img: "" },
+      { Candidate_Name: "", party_img: "", color: "" },
+      { Candidate_Name: "", party_img: "", color: "" },
     ],
     Duration: 10,
     parentId: session?.user?.id,
@@ -74,7 +74,10 @@ const CreateElectionInterface = () => {
     setElectionData((prev) => ({
       ...prev,
       NoC: prev.NoC + 1,
-      Candidates: [...prev.Candidates, { Candidate_Name: "", party_img: "" }],
+      Candidates: [
+        ...prev.Candidates,
+        { Candidate_Name: "", party_img: "", color: "black" },
+      ],
     }));
   };
 
@@ -99,16 +102,17 @@ const CreateElectionInterface = () => {
         body: JSON.stringify(electionData),
       });
 
-      const result = await response.json();
+      const { success, roomkey, message } = await response.json();
 
-      if (result.success) {
+      if (success) {
         setSubmitResult({
           success: true,
           message: "Election created successfully!",
         });
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        router.push(`/vote/${roomkey}`);
       } else {
-        setSubmitResult({ success: false, message: result.message });
+        setSubmitResult({ success: false, message: message });
       }
     } catch (error) {
       setSubmitResult({
@@ -160,7 +164,7 @@ const CreateElectionInterface = () => {
                 </span>
               </motion.div>
               {/* motion div ends here */}
-              {index < steps.length -1 && (
+              {index < steps.length - 1 && (
                 <ChevronRight className="text-gray-300" size={24} />
               )}
             </React.Fragment>
@@ -246,6 +250,15 @@ const CreateElectionInterface = () => {
                       }
                       placeholder="Party Image URL"
                       className="w-full sm:w-auto flex-grow px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
+                    />
+                    <input
+                      type="color"
+                      value={candidate.color || "#000000"}
+                      onChange={(e) =>
+                        handleCandidateChange(index, "color", e.target.value)
+                      }
+                      className="w-8 h-18 rounded-full cursor-pointer "
+                      title="Choose candidate color"
                     />
                     {/* add trash button only if candidate is more than 2 */}
                     {electionData.Candidates.length > 2 && (
@@ -341,9 +354,9 @@ const CreateElectionInterface = () => {
             disabled={isSubmitting || submitResult?.success}
           >
             {activeStep === steps.length - 1
-              ?( isSubmitting
+              ? isSubmitting
                 ? "Creating..."
-                : "Create Election")
+                : "Create Election"
               : "Next"}
           </motion.button>
         </div>
