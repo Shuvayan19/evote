@@ -49,6 +49,16 @@ const page = async () => {
             >
               Create Election
             </Link>
+            <Link href="/vote"
+              className="border-orange-600 border-2 p-1 rounded-md mb-2  hover:bg-orange-500"
+            >
+              Cast Vote
+            </Link>
+            <Link href="/dashboard/userElections"
+              className="border-blue-600 border-2 p-1 rounded-md mb-2  hover:bg-blue-500"
+            >
+              Your Elections
+            </Link>
             <LogoutForm />
           </div>
         </div>

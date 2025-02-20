@@ -3,20 +3,20 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface Candidate {
   _id: any;
   Candidate_Name: string;
-  party_img: string;
-  color?:string;
+  party_img: string|null;
+  color?: string;
   votes: number;
 }
-interface Voters {
-  userId: string;
-}
+
 export interface Election extends Document {
   ElectionName: string;
+  ElectionDesc: string;
   NoC: number;
   Candidates: Candidate[];
-  VoterList: Voters[];
+  VoterList: string[];
   Duration: number;
-  parentId: string;
+  isActive:boolean;
+  parentMail: string;
   isStrict: boolean;
   roomkey: number;
 }
@@ -27,18 +27,19 @@ const electionSchema = new Schema<Election>({
     required: false,
     default: "Vote",
   },
+  ElectionDesc: {
+    type: String,
+    required: false,
+    default: "Vote for your favourite candidate",
+  },
   NoC: {
     type: Number,
     min: [2, "atleast 2 candidates are needed to create election"],
     max: [8, "atmax 8 candidates are allowed to contest the election"],
   },
-  VoterList: [
-    {
-      userId: {
-        type: String,
-      },
-    },
-  ],
+  VoterList: {
+    type:[String],
+  },
   Candidates: [
     {
       Candidate_Name: {
@@ -47,9 +48,10 @@ const electionSchema = new Schema<Election>({
       },
       party_img: {
         type: String,
+        default: null,
         required: false,
       },
-      color:{type:String,required:false},
+      color: { type: String, required: false },
       votes: {
         type: Number,
         default: 0,
@@ -62,7 +64,7 @@ const electionSchema = new Schema<Election>({
     required: false,
     default: 10,
   },
-  parentId: {
+  parentMail: {
     type: String,
     required: true,
   },
@@ -71,12 +73,17 @@ const electionSchema = new Schema<Election>({
     required: true,
     default: false,
   },
+  isActive:{
+    type:Boolean,
+    required:true,
+    defautl:true,
+  },
   roomkey: {
     type: Number,
     required: true,
     unique: true,
   },
-});
+},{timestamps:true});
 
 //server side hook to generate roomkey
 // electionSchema.pre("save", async function (next) {

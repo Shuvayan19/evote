@@ -24,17 +24,18 @@ const CreateElectionInterface = () => {
   if (!session?.user) {
     redirect("/auth/signin");
   }
-
+  const email = session?.user?.email;
   // Main election state with initial values
   const [electionData, setElectionData] = useState({
     ElectionName: "",
+    ElectionDesc:"",
     NoC: 2, // Number of candidates
     Candidates: [
       { Candidate_Name: "", party_img: "", color: "" },
       { Candidate_Name: "", party_img: "", color: "" },
     ],
     Duration: 10,
-    parentId: session?.user?.id,
+    parentMail: email,
     isStrict: false,
   });
 
@@ -96,7 +97,7 @@ const CreateElectionInterface = () => {
     setSubmitResult(null);
 
     try {
-      const response = await fetch("/api/create-Election", {
+      const response = await fetch("/api/Elections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(electionData),
@@ -199,6 +200,20 @@ const CreateElectionInterface = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Election Description
+                  </label>
+                  <input
+                    type="text"
+                    name="ElectionDesc"
+                    value={electionData.ElectionDesc}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
+                    placeholder="Describe your election purpose"
+                    
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Duration (minutes)
                   </label>
                   <input
@@ -248,7 +263,7 @@ const CreateElectionInterface = () => {
                           e.target.value
                         )
                       }
-                      placeholder="Party Image URL"
+                      placeholder="Party Image (paste the image address)"
                       className="w-full sm:w-auto flex-grow px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
                     />
                     <input

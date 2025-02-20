@@ -10,9 +10,10 @@ export async function POST(req: NextRequest) {
     if (!session?.user) {
       return Response.json({success:false,message:"unauthorized"},{ status: 401 });
     }
-    const userid = session.user.id;
+    //:Storing the mail id as userid inside voterlist for now maintaining the uniqueness
+    
 
-    const { roomkey, Candidate_Name } = await req.json();
+    const { roomkey, Candidate_Name,email} = await req.json();
     if(!roomkey||!Candidate_Name){
       return Response.json({success:false,message:"incomplete inputs"},{status:400})
     }
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     //user id and the election voter list
     const isOldVoter = await ElectionModel.findOne({
       roomkey,
-      "VoterList.userId": userid,
+      VoterList: session.user?.email,
     });
     if (isOldVoter) {
       return Response.json(
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
         roomkey,
         "Candidates.Candidate_Name": Candidate_Name,
       },
-      { $inc: { "Candidates.$.votes": 1 }, $push: { VoterList: { userid } } },
+      { $inc: { "Candidates.$.votes": 1 }, $push: { VoterList:  email  } },
       { new: true }
     );
     if (!updatedElection) {

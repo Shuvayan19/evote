@@ -1,6 +1,9 @@
 import ElectionModel, { Candidate } from "@/model/Election";
 import dbConnect from "../../../../lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
+
+
+
 const generateUniqueRoomKey = async () => {
   let roomkey;
   do {
@@ -10,19 +13,36 @@ const generateUniqueRoomKey = async () => {
 };
 export async function GET(req: NextRequest) {
   const roomkey = req.nextUrl.searchParams.get("roomid");
+  const email=req.nextUrl.searchParams.get("email");
   try {
     await dbConnect();
-    const election = await ElectionModel.findOne({ roomkey });
-    if (!election) {
-      return NextResponse.json(
-        { success: false, message: "No Election found" },
-        { status: 404 }
-      );
+    if(roomkey){
+      const election = await ElectionModel.findOne({ roomkey });
+      if (!election) {
+        return NextResponse.json(
+          { success: false, message: "No Election found" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ success: true, election })
     }
-    return NextResponse.json({ success: true, election });
+    if(email){
+      const elections=await ElectionModel.find({parentMail:email})
+      if (!elections||elections.length===0) {
+        return NextResponse.json(
+          { success: false, message: "No Election found" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ success: true, elections })
+    }
+    return NextResponse.json(
+      { success: false, message: "Missing required query parameter" },
+      { status: 400 }
+    );
 
-
-  } catch (error) {
+    }
+    catch (error) {
     console.log(error);
     return NextResponse.json(
       { success: false, message: "error fetching election" },
@@ -36,10 +56,10 @@ export async function POST(req: Request, res: Response) {
     await dbConnect();
     const data=await req.json();
     console.log(data.Candidates);
-    const { ElectionName, NoC, Candidates, Duration, parentId, isStrict } =
+    const { ElectionName,ElectionDesc, NoC, Candidates, Duration, parentMail, isStrict } =
       data;
     //Checking details of the submission
-    if (!ElectionName || !Candidates || !parentId || Candidates.length < 2) {
+    if (!ElectionName || !Candidates || !parentMail || Candidates.length < 2) {
       return Response.json(
         { success: false, message: "Incomplete Details" },
         { status: 400 }
@@ -54,7 +74,7 @@ export async function POST(req: Request, res: Response) {
     }
     const newCandidate = Candidates.map((candidate: Candidate) => ({
       Candidate_Name: candidate.Candidate_Name,
-      party_img: candidate.party_img || "", // Default to empty string if not provided
+      party_img: candidate.party_img || null, // Default to empty string if not provided
       color: candidate.color || "", // Default to empty string if not provided
       votes: 0,
     }));
@@ -62,10 +82,12 @@ export async function POST(req: Request, res: Response) {
     const newElection = new ElectionModel({
       ElectionName,
       NoC,
+      ElectionDesc,
       Candidates: newCandidate,
       Duration: 10,
-      parentId,
+      parentMail,
       isStrict: false,
+      isActive:true,
       roomkey: newKey,
     });
     await newElection.save();
