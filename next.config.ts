@@ -20,7 +20,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "d3i6fh83elv35t.cloudfront.net",
       },
-     
+      {
+        protocol: "https",
+        hostname: "cdn.britannica.com",
+      },
+      {
+        protocol: "https",
+        hostname: "skift.com",
+      },
     ],
   },
 };

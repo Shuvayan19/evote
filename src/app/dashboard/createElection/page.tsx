@@ -11,6 +11,7 @@ import {
   Users,
   Calendar,
   Shield,
+  Upload,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { redirect, useRouter } from "next/navigation";
@@ -18,6 +19,8 @@ import { Candidate } from "@/model/Election";
 
 // Main component for creating elections with multi-step form interface
 const CreateElectionInterface = () => {
+  // const isAcceptable=["encrypted-tbn0.gstatic.com","i.ytimg.com","d3i6fh83elv35t.cloudfront.net","cdn.britannica.com","skift.com"]
+  const isAcceptable = ["encrypted-tbn0.gstatic.com", "i.ytimg.com"];
   const router = useRouter();
   // Auth session management with redirect if not authenticated
   const { data: session } = useSession();
@@ -28,18 +31,19 @@ const CreateElectionInterface = () => {
   // Main election state with initial values
   const [electionData, setElectionData] = useState({
     ElectionName: "",
-    ElectionDesc:"",
+    ElectionDesc: "",
     NoC: 2, // Number of candidates
     Candidates: [
-      { Candidate_Name: "", party_img: "", color: "" },
-      { Candidate_Name: "", party_img: "", color: "" },
+      { Candidate_Name: "", party_img: "", color: "", isUrl: false },
+      { Candidate_Name: "", party_img: "", color: "", isUrl: false },
     ],
     Duration: 10,
     parentMail: email,
     isStrict: false,
   });
 
-  // Form navigation and submission states
+  // error and setError
+  const [error, setError] = useState("");
 
   // Controls which step is visible
   const [activeStep, setActiveStep] = useState(0);
@@ -63,11 +67,55 @@ const CreateElectionInterface = () => {
   const handleCandidateChange = (
     index: number,
     field: keyof Candidate,
-    value: string
+    value: string | boolean
   ) => {
     const newCandidates = [...electionData.Candidates];
     newCandidates[index] = { ...newCandidates[index], [field]: value };
     setElectionData((prev) => ({ ...prev, Candidates: newCandidates }));
+  };
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (2MB = 2 * 1024 * 1024 bytes)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      alert("File size exceeds 2MB limit");
+      e.target.value = ""; // Reset the input
+      return;
+    }
+
+    // Convert file to base64 or use URL.createObjectURL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleCandidateChange(index, "party_img", reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+  //Handle Url Submission
+  const handleUrl = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const url = e.target.value;
+
+    // Always update the input value to allow typing
+    handleCandidateChange(index, "party_img", url);
+
+    // Only validate if there's a value to check
+    if (url.trim()) {
+      // Check if URL contains one of the acceptable domains
+      const isValid = isAcceptable.some((domain) => url.includes(domain));
+      console.log(isValid)
+
+      if (!isValid) {
+        setError(
+          `Candidate ${index} img address is not acceptable. Please download and upload the image`
+        );
+      } else {
+        setError(""); // Clear error if valid
+      }
+    }
   };
 
   // Handlers for adding/removing candidates
@@ -77,7 +125,7 @@ const CreateElectionInterface = () => {
       NoC: prev.NoC + 1,
       Candidates: [
         ...prev.Candidates,
-        { Candidate_Name: "", party_img: "", color: "black" },
+        { Candidate_Name: "", party_img: "", color: "black", isUrl: false },
       ],
     }));
   };
@@ -90,7 +138,7 @@ const CreateElectionInterface = () => {
       Candidates: newCandidates,
     }));
   };
-
+  
   // Form submission handler with API call
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -209,7 +257,6 @@ const CreateElectionInterface = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
                     placeholder="Describe your election purpose"
-                    
                   />
                 </div>
                 <div>
@@ -254,19 +301,6 @@ const CreateElectionInterface = () => {
                       required
                     />
                     <input
-                      type="text"
-                      value={candidate.party_img}
-                      onChange={(e) =>
-                        handleCandidateChange(
-                          index,
-                          "party_img",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Party Image (paste the image address)"
-                      className="w-full sm:w-auto flex-grow px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
-                    />
-                    <input
                       type="color"
                       value={candidate.color || "#000000"}
                       onChange={(e) =>
@@ -275,6 +309,94 @@ const CreateElectionInterface = () => {
                       className="w-8 h-18 rounded-full cursor-pointer "
                       title="Choose candidate color"
                     />
+                    {/* {!candidate.isUrl && candidate.party_img && (
+                      <div className="mt-2">
+                        <img
+                          src={candidate.party_img}
+                          alt={`Preview for ${candidate.Candidate_Name}`}
+                          className="h-10 w-10 object-cover rounded-full"
+                        />
+                      </div>
+                    )} */}
+                    {candidate.isUrl ? (
+                      <input
+                        type="text"
+                        value={candidate.party_img}
+                        onChange={(e) => handleUrl(e, index)}
+                        placeholder="Party Image (paste the image address)"
+                        className="w-full sm:w-auto flex-grow px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
+                      />
+                    ) : (
+                      //TODO change this input to upload file
+                      <div className="relative w-full sm:w-auto flex-grow">
+                        <label
+                          htmlFor={`file-upload-${index}`}
+                          className="flex items-center space-x-2 px-3 py-1.5 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm cursor-pointer bg-white text-gray-700 hover:bg-gray-100 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 ease-in-out"
+                        >
+                          <Upload className="w-5 h-5 text-emerald-600" />
+                          {!candidate.party_img ? (
+                            <span>Upload</span>
+                          ) : (
+                            <span>Uploaded!</span>
+                          )}
+                        </label>
+                        <input
+                          id={`file-upload-${index}`}
+                          type="file"
+                          accept="image/*" // Accept only image files
+                          onChange={(e) => {
+                            handleFileUpload(e, index);
+                          }}
+                          className="hidden"
+                        />
+                        {candidate.party_img && (
+                          <span className=" flex justify-between text-xs text-green-600 ml-2">
+                            File selected
+                            <button
+                              type="button"
+                              title="remove image"
+                              onClick={() =>
+                                handleCandidateChange(index, "party_img", "")
+                              }
+                              className="pr-1"
+                            >
+                              🗑️
+                            </button>
+                            {error && candidate.isUrl&& (
+                              <div className="text-red-500 text-xs">
+                                {error}
+                              </div>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <span>
+                      <button
+                        className={`flex flex-col items-center cursor-pointer mb-4 sm:mb-0 ${
+                          candidate.isUrl ? "text-emerald-600" : "text-gray-400"
+                        }`}
+                        onClick={() =>
+                          handleCandidateChange(index, "isUrl", true)
+                        }
+                      >
+                        🔗 URL
+                      </button>
+                      <button
+                        className={`flex flex-col items-center cursor-pointer mb-4 sm:mb-0 ${
+                          !candidate.isUrl
+                            ? "text-emerald-600"
+                            : "text-gray-400"
+                        }`}
+                        onClick={() =>
+                          handleCandidateChange(index, "isUrl", false)
+                        }
+                      >
+                        📤 Upload
+                      </button>
+                    </span>
+
                     {/* add trash button only if candidate is more than 2 */}
                     {electionData.Candidates.length > 2 && (
                       <motion.button

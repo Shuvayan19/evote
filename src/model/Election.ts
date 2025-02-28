@@ -5,6 +5,7 @@ export interface Candidate {
   Candidate_Name: string;
   party_img: string|null;
   color?: string;
+  isUrl?:boolean
   votes: number;
 }
 
@@ -51,6 +52,7 @@ const electionSchema = new Schema<Election>({
         default: null,
         required: false,
       },
+      isUrl:{ type : Boolean,required:false},
       color: { type: String, required: false },
       votes: {
         type: Number,
