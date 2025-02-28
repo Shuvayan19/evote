@@ -2,20 +2,26 @@ import { NextRequest } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import ElectionModel from "@/model/Election";
 import { auth } from "@/auth";
+import UserModel from "@/model/User";
 
 export async function POST(req: NextRequest) {
   try {
     //check if there is user in the session
     const session = await auth();
     if (!session?.user) {
-      return Response.json({success:false,message:"unauthorized"},{ status: 401 });
+      return Response.json(
+        { success: false, message: "unauthorized" },
+        { status: 401 }
+      );
     }
     //:Storing the mail id as userid inside voterlist for now maintaining the uniqueness
-    
 
-    const { roomkey, Candidate_Name,email} = await req.json();
-    if(!roomkey||!Candidate_Name){
-      return Response.json({success:false,message:"incomplete inputs"},{status:400})
+    const { roomkey, Candidate_Name, email } = await req.json();
+    if (!roomkey || !Candidate_Name) {
+      return Response.json(
+        { success: false, message: "incomplete inputs" },
+        { status: 400 }
+      );
     }
     //connect Db
     await dbConnect();
@@ -34,7 +40,6 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-   
 
     const election = await ElectionModel.findOne({ roomkey });
     if (!election) {
@@ -49,15 +54,25 @@ export async function POST(req: NextRequest) {
         roomkey,
         "Candidates.Candidate_Name": Candidate_Name,
       },
-      { $inc: { "Candidates.$.votes": 1 }, $push: { VoterList:  email  } },
+      { $inc: { "Candidates.$.votes": 1 }, $push: { VoterList: email } },
       { new: true }
     );
+
     if (!updatedElection) {
       console.log("wrong Candidate info passed");
       return Response.json(
         { success: false, message: "Candidate name does not match" },
         { status: 404 }
       );
+    }
+    const updateUser = await UserModel.findOneAndUpdate(
+      { email },
+      { $inc: { votedElection: 1 } },
+      { new: true }
+    );
+    if (!updateUser) {
+      console.log("Failed to update user's vote count");
+      // We won't return an error here since the vote was already cast successfully
     }
     return Response.json(
       { success: true, message: "Vote Casted Successfully", updatedElection },

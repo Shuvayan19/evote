@@ -16,8 +16,8 @@ export interface User extends Document {
   roles: Roles;
   isPremium: boolean;
   canVote: boolean;
-  createdElection: string[];
-  votedElection: string[];
+  createdElection: number;
+  votedElection: number;
   profilePic: string;
 }
 
@@ -79,10 +79,10 @@ const userSchema = new Schema<User>({
     Default: true,
   },
   createdElection: {
-    type: [String],
+    type:Number,
   },
   votedElection: {
-    type: [String],
+    type: Number,
   },
 });
 

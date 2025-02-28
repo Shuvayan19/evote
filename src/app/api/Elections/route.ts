@@ -1,8 +1,7 @@
 import ElectionModel, { Candidate } from "@/model/Election";
 import dbConnect from "../../../../lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
-
-
+import UserModel from "@/model/User";
 
 const generateUniqueRoomKey = async () => {
   let roomkey;
@@ -13,10 +12,10 @@ const generateUniqueRoomKey = async () => {
 };
 export async function GET(req: NextRequest) {
   const roomkey = req.nextUrl.searchParams.get("roomid");
-  const email=req.nextUrl.searchParams.get("email");
+  const email = req.nextUrl.searchParams.get("email");
   try {
     await dbConnect();
-    if(roomkey){
+    if (roomkey) {
       const election = await ElectionModel.findOne({ roomkey });
       if (!election) {
         return NextResponse.json(
@@ -24,25 +23,23 @@ export async function GET(req: NextRequest) {
           { status: 404 }
         );
       }
-      return NextResponse.json({ success: true, election })
+      return NextResponse.json({ success: true, election });
     }
-    if(email){
-      const elections=await ElectionModel.find({parentMail:email})
-      if (!elections||elections.length===0) {
+    if (email) {
+      const elections = await ElectionModel.find({ parentMail: email });
+      if (!elections || elections.length === 0) {
         return NextResponse.json(
           { success: false, message: "No Election found" },
           { status: 404 }
         );
       }
-      return NextResponse.json({ success: true, elections })
+      return NextResponse.json({ success: true, elections });
     }
     return NextResponse.json(
       { success: false, message: "Missing required query parameter" },
       { status: 400 }
     );
-
-    }
-    catch (error) {
+  } catch (error) {
     console.log(error);
     return NextResponse.json(
       { success: false, message: "error fetching election" },
@@ -54,10 +51,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request, res: Response) {
   try {
     await dbConnect();
-    const data=await req.json();
-    console.log(data.Candidates);
-    const { ElectionName,ElectionDesc, NoC, Candidates, Duration, parentMail, isStrict } =
-      data;
+    const data = await req.json();
+
+    const {
+      ElectionName,
+      ElectionDesc,
+      NoC,
+      Candidates,
+      Duration,
+      parentMail,
+      isStrict,
+    } = data;
     //Checking details of the submission
     if (!ElectionName || !Candidates || !parentMail || Candidates.length < 2) {
       return Response.json(
@@ -87,11 +91,19 @@ export async function POST(req: Request, res: Response) {
       Duration: 10,
       parentMail,
       isStrict: false,
-      isActive:true,
+      isActive: true,
       roomkey: newKey,
     });
     await newElection.save();
-
+    const updateUser = await UserModel.findOneAndUpdate(
+      { email: parentMail },
+      { $inc: { createdElection: 1 } },
+      { new: true }
+    );
+    if (!updateUser) {
+      console.log("Failed to update user's election count");
+      // We won't return an error here since the election was already created successfully
+    }
     return Response.json(
       {
         success: true,

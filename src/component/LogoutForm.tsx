@@ -1,6 +1,6 @@
 import { doSociallogout } from "@/app/api/actions";
 
-const LogoutForm = async () => {
+const LogoutForm =  () => {
   return (
     <form action={doSociallogout}>
       <button
