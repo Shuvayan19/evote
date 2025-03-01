@@ -5,7 +5,7 @@ import { signIn, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 
 // export async function doSocialLogin(formData:FormData) {
-  
+
 //   try {
 //     await signIn("google");
 //   } catch (error) {
@@ -44,29 +44,25 @@ import { redirect } from "next/navigation";
 //     throw (error)
 // }
 // }
-export async function login(formData: FormData) :Promise<any>{
+export async function login(formData: FormData): Promise<any> {
   try {
-   const email= formData.get("email") as string;
-    const password= formData.get("password")as string;
-   
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     await signIn("credentials", {
       redirect: false,
-      callbackUrl:"/",
+      callbackUrl: "/",
       email,
-      password
-      
+      password,
     });
-   
-    
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error during credential login:", error);
-    throw new Error(error)
-    }
-    redirect('/dashboard');
-   
+    return { message: error.message, statusCode: 500 };
+  }
+  redirect("/dashboard");
 }
 
 export async function doSociallogout() {
   //logout function
-  await signOut( {redirectTo: "/auth/signin", redirect: true});
+  await signOut({ redirectTo: "/auth/signin", redirect: true });
 }
