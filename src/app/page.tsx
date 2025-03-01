@@ -63,16 +63,18 @@ const Homepage = () => {
                   Login
                 </Link>
                 {/* Mobile Menu Button */}
-                {/* <button
+                <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="md:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-emerald-500"
                 >
                   {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button> */}
+                </button>
               </div>
             </div>
           </div>
+
           {/* Mobile Menu */}
+
           {isMobileMenuOpen && (
             <div className="md:hidden bg-gray-100 dark:bg-gray-800 pb-4 px-4 transition-colors duration-200">
               <div className="flex flex-col space-y-4">
@@ -143,36 +145,34 @@ const Homepage = () => {
             </div>
           </div>
         </section>
-      
 
-      {/* Feature Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-          {/* Create Election Card */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 sm:p-8 transition-colors duration-200">
-            <h2 className="text-emerald-600 dark:text-emerald-500 text-xl sm:text-2xl font-bold mb-4">
-              Create Election
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              Set up your election in minutes
-            </p>
-          </div>
+        {/* Feature Cards */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {/* Create Election Card */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 sm:p-8 transition-colors duration-200">
+              <h2 className="text-emerald-600 dark:text-emerald-500 text-xl sm:text-2xl font-bold mb-4">
+                Create Election
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">
+                Set up your election in minutes
+              </p>
+            </div>
 
-          {/* Cast Vote Card */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 sm:p-8 transition-colors duration-200">
-            <h2 className="text-emerald-600 dark:text-emerald-500 text-xl sm:text-2xl font-bold mb-4">
-              Cast Vote
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              Simple and secure voting
-            </p>
+            {/* Cast Vote Card */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 sm:p-8 transition-colors duration-200">
+              <h2 className="text-emerald-600 dark:text-emerald-500 text-xl sm:text-2xl font-bold mb-4">
+                Cast Vote
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">
+                Simple and secure voting
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       </main>
       {/*  */}
-       </div>
-    
+    </div>
   );
 };
 
