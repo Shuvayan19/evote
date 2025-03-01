@@ -82,6 +82,9 @@ export async function POST(req: Request, res: Response) {
       color: candidate.color || "", // Default to empty string if not provided
       votes: 0,
     }));
+    const currentTime=new Date();
+    const expiredTime=new Date(currentTime);
+    expiredTime.setMinutes(expiredTime.getMinutes()+Duration)
     const newKey = await generateUniqueRoomKey();
     const newElection = new ElectionModel({
       ElectionName,
@@ -93,6 +96,7 @@ export async function POST(req: Request, res: Response) {
       isStrict: false,
       isActive: true,
       roomkey: newKey,
+      endDate:expiredTime
     });
     await newElection.save();
     const updateUser = await UserModel.findOneAndUpdate(

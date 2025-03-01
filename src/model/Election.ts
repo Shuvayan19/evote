@@ -20,6 +20,7 @@ export interface Election extends Document {
   parentMail: string;
   isStrict: boolean;
   roomkey: number;
+  endDate:Date;
 }
 
 const electionSchema = new Schema<Election>({
@@ -85,6 +86,10 @@ const electionSchema = new Schema<Election>({
     required: true,
     unique: true,
   },
+  endDate:{
+    type:Date,
+    required:true,
+  }
 },{timestamps:true});
 
 //server side hook to generate roomkey

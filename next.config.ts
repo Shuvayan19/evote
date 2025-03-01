@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "skift.com",
       },
+      {
+        protocol: "https",
+        hostname: "static.themarthablog.com",
+      },
     ],
   },
 };

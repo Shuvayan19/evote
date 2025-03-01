@@ -26,15 +26,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+      > <main className="flex-grow">
         <SessionProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          </ThemeProvider>
+        {children}
+          {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          
+          </ThemeProvider> */}
         </SessionProvider>
+      </main>
         
+        <footer className="text-[14px] text-gray-600 bg-gray-50 px-20 py-8">Made by Shuvayan Nandy</footer>
+  
       </body>
-    </html>
+     
+       </html>
   );
 }

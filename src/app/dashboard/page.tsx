@@ -311,7 +311,7 @@ import LogoutForm from "@/component/LogoutForm";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { signOut } from "@/auth";
+
 
 // Define stats type
 interface UserStats {

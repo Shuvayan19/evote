@@ -115,8 +115,8 @@ export const {
               },
               isPremium: false,
               canVote: true,
-              createdElection: [],
-              votedElection: [],
+              createdElection: 0,
+              votedElection: 0,
             });
             console.log("user created succesfully");
           }
