@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     await dbConnect();
     const data = await req.json();
@@ -82,9 +82,9 @@ export async function POST(req: Request, res: Response) {
       color: candidate.color || "", // Default to empty string if not provided
       votes: 0,
     }));
-    const currentTime=new Date();
-    const expiredTime=new Date(currentTime);
-    expiredTime.setMinutes(expiredTime.getMinutes()+Duration)
+    const currentTime = new Date();
+    const expiredTime = new Date(currentTime);
+    expiredTime.setMinutes(expiredTime.getMinutes() + Duration);
     const newKey = await generateUniqueRoomKey();
     const newElection = new ElectionModel({
       ElectionName,
@@ -96,7 +96,7 @@ export async function POST(req: Request, res: Response) {
       isStrict: false,
       isActive: true,
       roomkey: newKey,
-      endDate:expiredTime
+      endDate: expiredTime,
     });
     await newElection.save();
     const updateUser = await UserModel.findOneAndUpdate(

@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import ElectionModel from "@/model/Election";
 
-export async function POST(req: NextRequest, res: NextResponse) {
-  const authHeader = req.headers.get('authorization');
+export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', {
+    return new Response("Unauthorized", {
       status: 401,
     });
   }
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const result = await ElectionModel.deleteMany({
       endDate: { $lt: currentDate },
     });
-    console.log("cron ran at:",currentDate);
+    console.log("cron ran at:", currentDate);
     return NextResponse.json(
       {
         success: true,
@@ -25,7 +25,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
       { status: 200 }
     );
-    
   } catch (error) {
     console.error("Cron job error:", error);
     return NextResponse.json(
